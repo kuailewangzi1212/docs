@@ -1,0 +1,46 @@
+查看令牌
+docker swarm join-token manager
+节点升级manager
+docker node promote docker-118
+节点降级为worker
+docker node demote docker-118
+
+
+
+
+
+
+
+----------linux常用命令
+复制文件 cp a.txt b.txt
+复制文件夹 cp -r a b
+
+
+
+---------从现有镜像中创建image
+--在原有的image上新建一个tag是svc的镜像
+docker tag imageid  docker.codedev.top:88/nginx:svc
+
+--将容器提交为镜像
+docker commit -a "115504218@qq.com" -m "add cert files" f890096bfc87  docker.codedev.top:88/nginx:svc1.2
+--将镜像提交
+docker push docker.codedev.top:88/nginx:svc1.2
+
+
+------------nginx部署
+docker service create --name nginxhost -p 80:80 -p 443:443 --network wl-network docker.codedev.top:88/nginx:svc1.2
+docker service update --mount-add type=bind,source=/home/conf/ng,destination=/home/source  nginxhost
+
+
+
+----------信息记录
+112.16.93.184:23389  端口3389外网为23389，6025、6026
+
+Linux设置端口转发：-----------------------------------------------------------------------------------------------
+https://blog.csdn.net/gobitan/article/details/50696641
+编辑/etc/sysctl.conf文件，将net.ipv4.ip_forward=1前面的#注释去掉，保存文件，然后执行sudo sysctl -p使其生效
+
+场景三：在外网直接访问内网的MySQL数据库
+案例：很多时候数据库在内网机，外网不能直接访问，但做运维的时候可能需要通过图形界面工具直接连上去。做端口映射就可以解决这个问题。例如：将外网机192.168.2.61的3001端口转发到内网机192.168.2.70的MySQL的3306端口
+sudo iptables -t nat -A PREROUTING -d 172.22.31.25 -p tcp --dport 21433 -j DNAT --to-destination 172.22.32.12:1433
+sudo iptables -t nat -A POSTROUTING -d 172.22.32.12 -p tcp --dport 1433 -j SNAT --to 172.22.31.25
